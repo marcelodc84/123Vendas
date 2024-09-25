@@ -2,11 +2,9 @@
 using Bogus;
 using Domain.Entities;
 using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
 
 namespace Tests.Controllers
 {
