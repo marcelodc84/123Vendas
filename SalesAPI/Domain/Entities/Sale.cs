@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities
 {
     public class Sale
     {
+        [Key]
         public int SaleNumber { get; set; }
-        public DateTime SaleDate { get; set; }
-        public string Customer { get; set; }
+        public DateTime SaleDate { get; set; } = DateTime.Now;
+        public string Customer { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
-        public string Branch { get; set; }
-        public List<SaleItem> Items { get; set; }
+        public string Branch { get; set; } = string.Empty;
+        public List<SaleItem> Items { get; set; } = new List<SaleItem>();
         public bool IsCancelled { get; set; }
     }
 }

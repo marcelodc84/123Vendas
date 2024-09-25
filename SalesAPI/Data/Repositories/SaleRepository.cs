@@ -1,48 +1,49 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Repositories
 {
     public class SaleRepository : ISaleRepository
     {
-        private readonly List<Sale> _sales = new();
+        private readonly AppDbContext _context;
 
-        public Task<IEnumerable<Sale>> GetAllSalesAsync()
+        public SaleRepository(AppDbContext context)
         {
-            return Task.FromResult(_sales.AsEnumerable());
+            _context = context;
         }
 
-        public Task<Sale> GetSaleByIdAsync(int saleNumber)
+        public async Task<IEnumerable<Sale>> GetAllSalesAsync()
         {
-            var sale = _sales.FirstOrDefault(s => s.SaleNumber == saleNumber);
-            return Task.FromResult(sale);
+            return await _context.Sales.Include(s => s.Items).ToListAsync();
         }
 
-        public Task AddSaleAsync(Sale sale)
+        public async Task<Sale> GetSaleByIdAsync(int id)
         {
-            _sales.Add(sale);
-            return Task.CompletedTask;
+            return await _context.Sales.Include(s => s.Items)
+                                       .FirstOrDefaultAsync(s => s.SaleNumber == id);
         }
 
-        public Task UpdateSaleAsync(Sale sale)
+        public async Task AddSaleAsync(Sale sale)
         {
-            var existingSale = _sales.FirstOrDefault(s => s.SaleNumber == sale.SaleNumber);
-            if (existingSale != null)
-            {
-                _sales.Remove(existingSale);
-                _sales.Add(sale);
-            }
-            return Task.CompletedTask;
+            await _context.Sales.AddAsync(sale);
+            await _context.SaveChangesAsync();
         }
 
-        public Task DeleteSaleAsync(int saleNumber)
+        public async Task UpdateSaleAsync(Sale sale)
         {
-            var sale = _sales.FirstOrDefault(s => s.SaleNumber == saleNumber);
+            _context.Sales.Update(sale);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteSaleAsync(int id)
+        {
+            var sale = await _context.Sales.FindAsync(id);
             if (sale != null)
             {
-                _sales.Remove(sale);
+                _context.Sales.Remove(sale);
+                await _context.SaveChangesAsync();
             }
-            return Task.CompletedTask;
         }
     }
 }

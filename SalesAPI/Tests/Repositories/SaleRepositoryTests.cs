@@ -1,18 +1,26 @@
 ﻿using Bogus;
+using Data;
 using Data.Repositories;
 using Domain.Entities;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tests.Repositories
 {
-    public class SaleRepositoryTests
+    public class SaleRepositoryTests : IAsyncLifetime
     {
+        private readonly AppDbContext _context;
         private readonly SaleRepository _repository;
         private readonly Faker<Sale> _saleFaker;
 
         public SaleRepositoryTests()
         {
-            _repository = new SaleRepository();
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: "SaleRepository_Tests_Database")
+                .Options;
+
+            _context = new AppDbContext(options);
+            _repository = new SaleRepository(_context);
             _saleFaker = new Faker<Sale>()
                 .RuleFor(s => s.SaleNumber, f => f.Random.Int(1, 1000))
                 .RuleFor(s => s.SaleDate, f => f.Date.Past())
@@ -27,6 +35,19 @@ namespace Tests.Repositories
                     .RuleFor(i => i.TotalItemAmount, (f, i) => i.Quantity * i.UnitPrice - i.Discount)
                     .Generate(3).ToList())
                 .RuleFor(s => s.IsCancelled, f => f.Random.Bool());
+        }
+
+        public async Task InitializeAsync()
+        {
+            // This method is called before each test method is executed.
+            await _context.Database.EnsureDeletedAsync();
+            await _context.Database.EnsureCreatedAsync();
+        }
+
+        public Task DisposeAsync()
+        {
+            // This method is called after each test method is executed.
+            return Task.CompletedTask;
         }
 
         [Fact]
@@ -49,10 +70,9 @@ namespace Tests.Repositories
         {
             // Arrange
             var sales = _saleFaker.Generate(5);
-            foreach (var sale in sales)
-            {
-                await _repository.AddSaleAsync(sale);
-            }
+
+            await _context.Sales.AddRangeAsync(sales);
+            await _context.SaveChangesAsync();
 
             // Act
             var result = await _repository.GetAllSalesAsync();
@@ -63,11 +83,29 @@ namespace Tests.Repositories
         }
 
         [Fact]
+        public async Task GetSaleByIdAsync_ShouldReturnSale()
+        {
+            // Arrange
+            var sale = _saleFaker.Generate();
+            await _context.Sales.AddAsync(sale);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetSaleByIdAsync(sale.SaleNumber);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(sale);
+        }
+
+        [Fact]
         public async Task UpdateSaleAsync_ShouldUpdateSale()
         {
             // Arrange
             var sale = _saleFaker.Generate();
-            await _repository.AddSaleAsync(sale);
+            await _context.Sales.AddAsync(sale);
+            await _context.SaveChangesAsync();
+
             sale.Customer = "Updated Customer";
 
             // Act
@@ -84,7 +122,8 @@ namespace Tests.Repositories
         {
             // Arrange
             var sale = _saleFaker.Generate();
-            await _repository.AddSaleAsync(sale);
+            await _context.Sales.AddAsync(sale);
+            await _context.SaveChangesAsync();
 
             // Act
             await _repository.DeleteSaleAsync(sale.SaleNumber);
