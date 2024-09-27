@@ -46,23 +46,23 @@ curl --location --request POST 'https://localhost:7015/api/sales' \
 --data-raw '{
     "SaleNumber": 123,
     "SaleDate": "2024-09-26",
-    "Customer": "fooooo",
+    "Customer": "Customer Foo",
     "TotalAmount": 123234,
-    "Branch": "qweqwe",
+    "Branch": "São Paulo 001",
     "Items": [
         {
-            "Product": "qweqqwrt",
-            "Quantity": 234,
-            "UnitPrice": 654,
-            "Discount": 54,
-            "TotalItemAmount": 54
+            "Product": "Item 1111",
+            "Quantity": 12,
+            "UnitPrice": 34,
+            "Discount": 56,
+            "TotalItemAmount": 78
         },
         {
-            "Product": "asdfasd",
-            "Quantity": 3,
-            "UnitPrice": 234,
-            "Discount": 12,
-            "TotalItemAmount": 22
+            "Product": "Item 2222",
+            "Quantity": 98,
+            "UnitPrice": 76,
+            "Discount": 54,
+            "TotalItemAmount": 32
         }
     ],
     "IsCancelled": false
@@ -76,30 +76,23 @@ curl --location --request PUT 'https://localhost:7015/api/sales/123' \
 --data-raw '{
     "SaleNumber": 123,
     "SaleDate": "2024-09-26",
-    "Customer": "chuuuuu",
+    "Customer": "Customer Foo",
     "TotalAmount": 123234,
-    "Branch": "qweqwe",
+    "Branch": "São Paulo 001",
     "Items": [
         {
-            "Product": "qweqqwrt",
-            "Quantity": 234,
-            "UnitPrice": 654,
+            "Product": "Item 1111",
+            "Quantity": 12,
+            "UnitPrice": 34,
+            "Discount": 56,
+            "TotalItemAmount": 78
+        },
+        {
+            "Product": "Item 2222",
+            "Quantity": 98,
+            "UnitPrice": 76,
             "Discount": 54,
-            "TotalItemAmount": 54
-        },
-        {
-            "Product": "asdfasd",
-            "Quantity": 12,
-            "UnitPrice": 34,
-            "Discount": 56,
-            "TotalItemAmount": 78
-        },
-        {
-            "Product": "chochocho",
-            "Quantity": 12,
-            "UnitPrice": 34,
-            "Discount": 56,
-            "TotalItemAmount": 78
+            "TotalItemAmount": 32
         }
     ],
     "IsCancelled": false
@@ -110,3 +103,12 @@ delete sale
 ```
 curl --location --request DELETE 'https://localhost:7015/api/sales/123'
 ```
+
+<br>
+
+#### Considerações
+
+* Para fins de demonstração implementei um Entity Framework "em memória" para persistir os dados
+* Fiquei com algumas dúvidas quanto ao padrão de External Identities, então não implementei nenhum código para validação dos dados
+
+
