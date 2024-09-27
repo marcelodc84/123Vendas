@@ -2,6 +2,7 @@
 using Data;
 using Data.Repositories;
 using Domain.Interfaces;
+using Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -22,9 +23,12 @@ namespace API
                 // Add services to the container.
                 builder.Services.AddControllers();
 
+                builder.Services.AddScoped<IEventPublisher, ConsoleEventPublisher>();
+
                 builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseInMemoryDatabase("InMemoryDb"));
                 builder.Services.AddScoped<ISaleRepository, SaleRepository>();
+
 
                 var app = builder.Build();
 
