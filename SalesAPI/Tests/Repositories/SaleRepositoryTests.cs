@@ -1,9 +1,12 @@
 ﻿using Bogus;
 using Data;
+using Data.EventPublishing;
 using Data.Repositories;
 using Domain.Entities;
+using Domain.Interfaces;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Tests.Repositories
 {
@@ -13,6 +16,9 @@ namespace Tests.Repositories
         private readonly SaleRepository _repository;
         private readonly Faker<Sale> _saleFaker;
 
+        private readonly ILogger _logger;
+        private readonly IEventPublisher _eventPublisher;
+
         public SaleRepositoryTests()
         {
             var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -20,7 +26,12 @@ namespace Tests.Repositories
                 .Options;
 
             _context = new AppDbContext(options);
-            _repository = new SaleRepository(_context);
+
+            _logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            _eventPublisher = new ConsoleEventPublisher();
+
+            _repository = new SaleRepository(_context, _logger, _eventPublisher);
+
             _saleFaker = new Faker<Sale>()
                 .RuleFor(s => s.SaleNumber, f => f.Random.Int(1, 1000))
                 .RuleFor(s => s.SaleDate, f => f.Date.Past())
