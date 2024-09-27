@@ -24,7 +24,7 @@ namespace Data.Repositories
             return await _context.Sales.Include(s => s.Items).ToListAsync();
         }
 
-        public async Task<Sale> GetSaleByIdAsync(int id)
+        public async Task<Sale?> GetSaleByIdAsync(int id)
         {
             return await _context.Sales.Include(s => s.Items)
                                        .FirstOrDefaultAsync(s => s.SaleNumber == id);
