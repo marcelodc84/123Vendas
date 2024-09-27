@@ -18,45 +18,84 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSales()
         {
-            var sales = await _saleRepository.GetAllSalesAsync();
-            return Ok(sales);
+            try
+            {
+                var sales = await _saleRepository.GetAllSalesAsync();
+                return Ok(sales);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSaleById(int id)
         {
-            var sale = await _saleRepository.GetSaleByIdAsync(id);
-            if (sale == null)
+            try
             {
-                return NotFound();
+                var sale = await _saleRepository.GetSaleByIdAsync(id);
+                if (sale == null)
+                {
+                    return NotFound();
+                }
+                return Ok(sale);
             }
-            return Ok(sale);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSale([FromBody] Sale sale)
         {
-            await _saleRepository.AddSaleAsync(sale);
-            return CreatedAtAction(nameof(GetSaleById), new { id = sale.SaleNumber }, sale);
+            try
+            {
+                await _saleRepository.AddSaleAsync(sale);
+                return CreatedAtAction(nameof(GetSaleById), new { id = sale.SaleNumber }, sale);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSale(int id, [FromBody] Sale sale)
         {
-            if (id != sale.SaleNumber)
+            try
             {
-                return BadRequest();
-            }
+                if (id != sale.SaleNumber)
+                {
+                    return BadRequest();
+                }
 
-            await _saleRepository.UpdateSaleAsync(sale);
-            return NoContent();
+                await _saleRepository.UpdateSaleAsync(sale);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSale(int id)
         {
-            await _saleRepository.DeleteSaleAsync(id);
-            return NoContent();
+            try
+            {
+                await _saleRepository.DeleteSaleAsync(id);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

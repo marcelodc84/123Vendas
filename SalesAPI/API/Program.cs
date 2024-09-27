@@ -29,6 +29,7 @@ namespace API
                     options.UseInMemoryDatabase("InMemoryDb"));
                 builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 
+                builder.Services.AddSingleton(Log.Logger);
 
                 var app = builder.Build();
 

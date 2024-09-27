@@ -1,9 +1,9 @@
 ﻿using Bogus;
 using Data;
-using Data.EventPublishing;
 using Data.Repositories;
 using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Services;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Serilog;

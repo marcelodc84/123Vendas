@@ -57,17 +57,21 @@ namespace Data.Repositories
         public async Task DeleteSaleAsync(int saleNumber)
         {
             var sale = await _context.Sales.FindAsync(saleNumber);
-            if (sale != null)
+
+            if (sale == null)
             {
-                _context.Sales.Remove(sale);
-                await _context.SaveChangesAsync();
-
-                _logger.Information("Sale deleted: {SaleNumber}", saleNumber);
-
-                //event notification
-                SaleCancelled scEvent = new SaleCancelled { SaleNumber = sale.SaleNumber };
-                await _eventPublisher.PublishAsync(scEvent);
+                _logger.Error("Sale not found: {SaleNumber}", saleNumber);
+                throw new InvalidOperationException();
             }
+
+            _context.Sales.Remove(sale);
+            await _context.SaveChangesAsync();
+
+            _logger.Information("Sale deleted: {SaleNumber}", saleNumber);
+
+            //event notification
+            SaleCancelled scEvent = new SaleCancelled { SaleNumber = sale.SaleNumber };
+            await _eventPublisher.PublishAsync(scEvent);
         }
     }
 }
